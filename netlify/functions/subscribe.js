@@ -1,11 +1,9 @@
-const fetch = require('node-fetch');
-
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const { email, level, levelNum } = JSON.parse(event.body);
+  const { email, levelNum } = JSON.parse(event.body);
   const API_KEY = process.env.MAILCHIMP_API_KEY;
   const AUDIENCE_ID = process.env.MAILCHIMP_AUDIENCE_ID;
   const DC = API_KEY.split('-')[1];
@@ -30,24 +28,19 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           email_address: email,
           status: 'subscribed',
-          tags: [tagMap[levelNum]],
-          merge_fields: {
-            LEVEL: level
-          }
+          tags: [tagMap[levelNum]]
         })
       }
     );
 
-    if (response.ok) {
+    const data = await response.json();
+
+    if (response.ok || data.title === 'Member Exists') {
       return { statusCode: 200, body: JSON.stringify({ success: true }) };
-    } else {
-      const error = await response.json();
-      // Handle already subscribed gracefully
-      if (error.title === 'Member Exists') {
-        return { statusCode: 200, body: JSON.stringify({ success: true }) };
-      }
-      return { statusCode: 400, body: JSON.stringify({ error: error.detail }) };
     }
+
+    return { statusCode: 400, body: JSON.stringify({ error: data.detail }) };
+
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }
