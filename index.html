@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Health Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAF9F6;--surface:#FFFFFF;--border:#E8E5DF;--border-strong:#C8C4BC;
+  --text:#1A1916;--text-secondary:#6B6860;--text-tertiary:#9E9B94;
+  --radius:14px;--radius-sm:9px;
+  --vision:#3B5BDB;--velocity:#E67700;--value:#2D6A4F;
+}
+html{font-size:16px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem 4rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:580px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.04),0 8px 32px rgba(0,0,0,0.06)}
+.screen{display:none}
+.screen.active{display:block}
+
+/* COVER */
+.cover-graphic{width:100%;height:210px;background:#1A1916;position:relative;overflow:hidden}
+.cover-graphic svg{width:100%;height:100%}
+.cover-body{padding:2.25rem 2rem 2.5rem}
+.cover-title{font-family:'DM Serif Display',serif;font-size:34px;line-height:1.15;color:var(--text);margin-bottom:0.875rem}
+.cover-sub{font-size:15px;color:var(--text-secondary);line-height:1.7;margin-bottom:2rem}
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:2rem}
+.pillar-chip{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem 0.625rem;text-align:center}
+.p-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.p-name{display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.p-desc{display:block;font-size:11px;color:var(--text-tertiary);font-weight:400;line-height:1.45}
+.meta-row{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.75rem;font-size:13px;color:var(--text-tertiary)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:0.85rem 1.75rem;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;border:none;transition:opacity 0.15s,background 0.15s,transform 0.1s}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:var(--text);color:white;width:100%;justify-content:center}
+.btn-primary:hover{opacity:0.87}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--text-secondary);border:1px solid var(--border);padding:0.7rem 1.25rem;font-size:14px}
+.btn-ghost:hover{background:var(--bg)}
+
+/* QUIZ HEADER — dark band with dots */
+.quiz-header{background:#1A1916;padding:1.25rem 2rem 1rem;position:relative;overflow:hidden}
+.quiz-header-bg{position:absolute;inset:0;width:100%;height:100%}
+.quiz-header-content{position:relative;z-index:1}
+.progress-meta{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:8px}
+.progress-track{height:2px;background:rgba(255,255,255,0.15);border-radius:1px;margin-bottom:10px}
+.progress-fill{height:2px;border-radius:1px;transition:width 0.35s ease}
+.dots-row{display:flex;align-items:center;gap:0;margin-bottom:6px}
+.dot-group{display:flex;gap:5px;align-items:center}
+.dot-sep{width:10px;display:flex;align-items:center;justify-content:center}
+.dot-sep span{display:block;width:4px;height:1px;background:rgba(255,255,255,0.1)}
+.dot{width:7px;height:7px;border-radius:50%;transition:background 0.2s}
+.dots-labels{display:flex;align-items:center;gap:0;margin-bottom:0}
+.dot-group-label{font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif}
+.pillar-label{font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:8px;display:block}
+
+/* QUIZ BODY — pillar colour band */
+.pillar-band{height:4px;width:100%;transition:background 0.3s}
+.quiz-body{padding:1.75rem 2rem 1.75rem}
+.q-text{font-family:'DM Serif Display',serif;font-size:21px;line-height:1.4;color:var(--text);margin-bottom:1.75rem}
+.options{display:flex;flex-direction:column;gap:9px;margin-bottom:2rem}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:0.875rem 1rem;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:border-color 0.15s,background 0.15s;font-size:14px;color:var(--text);line-height:1.5}
+.opt:hover{border-color:var(--border-strong);background:var(--bg)}
+.opt.selected{border-color:var(--text);background:var(--bg)}
+.opt-radio{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border-strong);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:border-color 0.15s,background 0.15s}
+.opt.selected .opt-radio{border-color:var(--text);background:var(--text)}
+.opt.selected .opt-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:white}
+.nav-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+
+/* RESULTS */
+.results-hero{background:#1A1916;padding:2.5rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+.results-hero-bg{position:absolute;inset:0;width:100%;height:100%}
+.results-hero-content{position:relative;z-index:1}
+.score-ring-wrap{width:120px;height:120px;margin:0 auto 1.25rem;position:relative}
+.score-ring-wrap svg{width:100%;height:100%}
+.ring-bg{fill:none;stroke:rgba(255,255,255,0.12);stroke-width:7}
+.ring-fg{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)}
+.score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-family:'DM Serif Display',serif;font-size:32px;line-height:1;color:white}
+.score-denom{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px}
+.level-pill{display:inline-block;padding:0.35rem 1rem;border-radius:20px;font-size:13px;font-weight:500;margin-bottom:0.75rem}
+.results-hero h2{font-family:'DM Serif Display',serif;font-size:24px;color:white;margin-bottom:0.5rem}
+.results-desc{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:420px;margin:0 auto}
+.results-body{padding:2rem 2rem 2.5rem}
+.section-label{font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:1rem}
+
+/* RADAR CHART */
+.radar-wrap{display:flex;justify-content:center;margin-bottom:2rem}
+
+.pillars-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:2rem}
+.pillar-row{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.875rem 1rem}
+.pillar-row-left{border-left:3px solid transparent}
+.pillar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14px;font-weight:500;color:var(--text)}
+.pillar-pct{font-size:13px;color:var(--text-secondary)}
+.bar-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.bar-fill{height:5px;border-radius:3px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.focus-section{margin-bottom:2rem}
+.focus-item{display:flex;align-items:flex-start;gap:12px;padding:0.875rem 0;border-bottom:1px solid var(--border)}
+.focus-item:last-child{border-bottom:none}
+.focus-dot{width:28px;height:28px;border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center}
+.focus-text{flex:1}
+.focus-text strong{display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.focus-text span{font-size:13px;color:var(--text-secondary);line-height:1.55}
+.cta-box{background:#1A1916;border-radius:var(--radius);padding:1.75rem;text-align:center;margin-bottom:1rem;position:relative;overflow:hidden}
+.cta-box-bg{position:absolute;inset:0;width:100%;height:100%}
+.cta-box-inner{position:relative;z-index:1}
+.cta-box h3{font-family:'DM Serif Display',serif;font-size:22px;color:white;margin-bottom:0.5rem}
+.cta-box p{font-size:13px;color:rgba(255,255,255,0.65);line-height:1.65;margin-bottom:1.25rem}
+.cta-btns{display:flex;flex-direction:column;gap:8px}
+.btn-cta-p{background:white;color:var(--text);width:100%;justify-content:center;padding:0.8rem 1.5rem;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:opacity 0.15s;display:flex;align-items:center;gap:8px}
+.btn-cta-p:hover{opacity:0.9}
+.btn-cta-g{background:transparent;color:rgba(255,255,255,0.65);border:1px solid rgba(255,255,255,0.2);width:100%;justify-content:center;padding:0.75rem 1.5rem;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;gap:8px}
+.btn-cta-g:hover{background:rgba(255,255,255,0.08)}
+.restart{text-align:center;margin-top:1rem}
+.restart button{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-tertiary);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* EMAIL CAPTURE */
+.email-capture{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1.25rem;margin-bottom:2rem}
+.email-capture h4{font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);margin-bottom:0.375rem}
+.email-capture p{font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:1rem}
+.email-input-row{display:flex;gap:8px}
+.email-input{flex:1;padding:0.75rem 1rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:white;outline:none;transition:border-color 0.15s}
+.email-input:focus{border-color:var(--border-strong)}
+.email-submit{background:var(--text);color:white;border:none;border-radius:var(--radius-sm);padding:0.75rem 1.25rem;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:opacity 0.15s}
+.email-submit:hover{opacity:0.87}
+.email-submit:disabled{opacity:0.5;cursor:not-allowed}
+.email-success{display:none;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:var(--radius-sm);padding:1rem;font-size:13px;color:#15803D;line-height:1.6}
+.email-error{display:none;font-size:12px;color:#B91C1C;margin-top:6px}
+.email-privacy{font-size:11px;color:var(--text-tertiary);margin-top:8px}
+
+/* REPORT */
+.report-section{margin-bottom:2rem}
+.report-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1.25rem}
+.report-intro{font-size:14px;color:var(--text-secondary);line-height:1.7;margin-bottom:1.25rem;font-style:italic}
+.report-item{display:flex;gap:12px;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.report-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.report-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:1px}
+.report-content{}
+.report-area{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.report-outcome{font-size:13px;color:var(--text-secondary);line-height:1.6}
+
+@media(max-width:480px){
+  body{padding:0.5rem 0 3rem}
+  .card{border-radius:0;border-left:none;border-right:none}
+  .cover-body,.quiz-body,.results-body{padding:1.5rem 1.25rem}
+  .cover-title{font-size:27px}
+  .q-text{font-size:18px}
+  .pillars{gap:7px}
+  .quiz-header{padding:1.25rem 1.25rem 1rem}
+}
+</style>
+</head>
+<body>
+<div class="card">
+
+<!-- COVER -->
+<div id="cover" class="screen active">
+  <div class="cover-graphic">
+    <svg viewBox="0 0 580 210" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <rect width="580" height="210" fill="#1A1916"/>
+      <circle cx="290" cy="240" r="200" fill="none" stroke="white" stroke-width="0.5" opacity="0.1"/>
+      <circle cx="290" cy="240" r="160" fill="none" stroke="white" stroke-width="0.4" opacity="0.08"/>
+      <circle cx="290" cy="240" r="120" fill="none" stroke="white" stroke-width="0.3" opacity="0.07"/>
+      <line x1="0" y1="105" x2="580" y2="105" stroke="white" stroke-width="0.3" opacity="0.06"/>
+      <line x1="290" y1="0" x2="290" y2="210" stroke="white" stroke-width="0.3" opacity="0.06"/>
+      <circle cx="130" cy="95" r="44" fill="none" stroke="white" stroke-width="0.7" opacity="0.2"/>
+      <circle cx="130" cy="95" r="28" fill="white" fill-opacity="0.05"/>
+      <text x="130" y="90" text-anchor="middle" font-family="DM Serif Display,serif" font-size="12" fill="white" opacity="0.75">Vision</text>
+      <text x="130" y="105" text-anchor="middle" font-size="8.5" fill="white" opacity="0.35" font-family="DM Sans,sans-serif" letter-spacing="1.2">PILLAR I</text>
+      <circle cx="290" cy="78" r="44" fill="none" stroke="white" stroke-width="0.7" opacity="0.2"/>
+      <circle cx="290" cy="78" r="28" fill="white" fill-opacity="0.05"/>
+      <text x="290" y="73" text-anchor="middle" font-family="DM Serif Display,serif" font-size="12" fill="white" opacity="0.75">Velocity</text>
+      <text x="290" y="88" text-anchor="middle" font-size="8.5" fill="white" opacity="0.35" font-family="DM Sans,sans-serif" letter-spacing="1.2">PILLAR II</text>
+      <circle cx="450" cy="95" r="44" fill="none" stroke="white" stroke-width="0.7" opacity="0.2"/>
+      <circle cx="450" cy="95" r="28" fill="white" fill-opacity="0.05"/>
+      <text x="450" y="90" text-anchor="middle" font-family="DM Serif Display,serif" font-size="12" fill="white" opacity="0.75">Value</text>
+      <text x="450" y="105" text-anchor="middle" font-size="8.5" fill="white" opacity="0.35" font-family="DM Sans,sans-serif" letter-spacing="1.2">PILLAR III</text>
+      <line x1="174" y1="93" x2="246" y2="82" stroke="white" stroke-width="0.5" opacity="0.15" stroke-dasharray="3,3"/>
+      <line x1="334" y1="82" x2="406" y2="93" stroke="white" stroke-width="0.5" opacity="0.15" stroke-dasharray="3,3"/>
+      <text x="290" y="172" text-anchor="middle" font-family="DM Serif Display,serif" font-size="15" fill="white" opacity="0.5" font-style="italic">Business Health Check</text>
+      <line x1="170" y1="179" x2="410" y2="179" stroke="white" stroke-width="0.35" opacity="0.12"/>
+    </svg>
+  </div>
+  <div class="cover-body">
+    <h1 class="cover-title">The Business Health Check</h1>
+    <p class="cover-sub">Answer just 18 questions for your Business Health Score. See exactly what to focus on for faster growth and less stress.</p>
+    <div class="pillars">
+      <div class="pillar-chip">
+        <div class="p-icon" style="background:#EEF2FF">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3B5BDB" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+        </div>
+        <span class="p-name">Vision</span>
+        <span class="p-desc">Clarity of direction, strategy and goals for long-term growth.</span>
+      </div>
+      <div class="pillar-chip">
+        <div class="p-icon" style="background:#FFF4E0">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#E67700" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <span class="p-name">Velocity</span>
+        <span class="p-desc">The systems, cash flow and marketing that drive momentum.</span>
+      </div>
+      <div class="pillar-chip">
+        <div class="p-icon" style="background:#F0FDF4">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <span class="p-name">Value</span>
+        <span class="p-desc">Your team, culture and innovation that make growth sustainable.</span>
+      </div>
+    </div>
+    <div class="meta-row">
+      <span>⏱ 3–4 minutes</span>
+      <span>📋 18 questions</span>
+      <span>✦ Free</span>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">Start the health check →</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <svg class="quiz-header-bg" viewBox="0 0 580 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="520" cy="-20" r="90" fill="none" stroke="white" stroke-width="0.5" opacity="0.1"/>
+      <circle cx="520" cy="-20" r="130" fill="none" stroke="white" stroke-width="0.3" opacity="0.07"/>
+      <circle cx="60" cy="130" r="80" fill="none" stroke="white" stroke-width="0.4" opacity="0.07"/>
+    </svg>
+    <div class="quiz-header-content">
+      <div class="progress-meta">
+        <span id="q-label"></span>
+        <span id="q-counter"></span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="prog" style="width:0%"></div>
+      </div>
+      <!-- Option B: dot groups -->
+      <div class="dots-row" id="dots-row"></div>
+      <div class="dots-labels" id="dots-labels"></div>
+    </div>
+  </div>
+  <!-- Option A: pillar colour band -->
+  <div class="pillar-band" id="pillar-band"></div>
+  <div class="quiz-body">
+    <p class="q-text" id="q-text"></p>
+    <div class="options" id="options"></div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="btn-back" onclick="goBack()" style="visibility:hidden">← Back</button>
+      <button class="btn btn-primary" id="btn-next" onclick="goNext()" disabled style="width:auto;padding:0.8rem 1.75rem">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="screen">
+  <div class="results-hero">
+    <svg class="results-hero-bg" viewBox="0 0 580 280" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="290" cy="350" r="270" fill="none" stroke="white" stroke-width="0.6" opacity="0.1"/>
+      <circle cx="290" cy="350" r="210" fill="none" stroke="white" stroke-width="0.4" opacity="0.08"/>
+      <circle cx="290" cy="350" r="150" fill="none" stroke="white" stroke-width="0.3" opacity="0.06"/>
+      <line x1="0" y1="140" x2="580" y2="140" stroke="white" stroke-width="0.3" opacity="0.05"/>
+      <line x1="290" y1="0" x2="290" y2="280" stroke="white" stroke-width="0.3" opacity="0.05"/>
+      <circle cx="80" cy="40" r="50" fill="none" stroke="white" stroke-width="0.4" opacity="0.08"/>
+      <circle cx="500" cy="30" r="60" fill="none" stroke="white" stroke-width="0.4" opacity="0.08"/>
+    </svg>
+    <div class="results-hero-content">
+      <div class="score-ring-wrap">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="50"/>
+          <circle class="ring-fg" id="ring" cx="60" cy="60" r="50" transform="rotate(-90 60 60)" stroke-dasharray="314" stroke-dashoffset="314"/>
+        </svg>
+        <div class="score-inner">
+          <span class="score-num" id="score-num">0</span>
+          <span class="score-denom">out of 36</span>
+        </div>
+      </div>
+      <div class="level-pill" id="level-pill"></div>
+      <h2 id="level-title"></h2>
+      <p class="results-desc" id="level-desc"></p>
+    </div>
+  </div>
+
+  <div class="results-body">
+    <!-- Option C: radar chart -->
+    <p class="section-label">Your business profile</p>
+    <div class="radar-wrap">
+      <svg id="radar" viewBox="0 0 280 220" width="280" height="220" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <p class="section-label">Pillar breakdown</p>
+    <div class="pillars-grid" id="pillars-grid"></div>
+
+    <div class="focus-section">
+      <p class="section-label">Priority focus areas</p>
+      <div id="focus-list"></div>
+    </div>
+
+    <div class="report-section">
+      <p class="section-label">Your personal action report</p>
+      <div class="report-box">
+        <p class="report-intro" id="report-intro"></p>
+        <div id="report-items"></div>
+      </div>
+    </div>
+
+    <div class="email-capture" id="email-capture-section">
+      <h4>Get your results as a PDF</h4>
+      <p>Enter your email and we'll send you a formatted copy of your Business Health Check results — including your action report — to keep and refer back to.</p>
+      <div class="email-input-row">
+        <input type="email" class="email-input" id="email-input" placeholder="your@email.com"/>
+        <button class="email-submit" id="email-submit" onclick="submitEmail()">Send my report</button>
+      </div>
+      <div class="email-error" id="email-error">Please enter a valid email address.</div>
+      <p class="email-privacy">No spam. Just your results. You can unsubscribe at any time.</p>
+      <div class="email-success" id="email-success">
+        ✓ &nbsp;Your report is on its way to your inbox. Check your email in the next few minutes.
+      </div>
+    </div>
+
+    <div class="cta-box">
+      <svg class="cta-box-bg" viewBox="0 0 580 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="490" cy="10" r="130" fill="none" stroke="white" stroke-width="0.8" opacity="0.12"/>
+        <circle cx="490" cy="10" r="90" fill="none" stroke="white" stroke-width="0.5" opacity="0.08"/>
+        <circle cx="70" cy="170" r="100" fill="none" stroke="white" stroke-width="0.5" opacity="0.08"/>
+      </svg>
+      <div class="cta-box-inner">
+        <h3>Ready to move up a level?</h3>
+        <p>Book a complimentary Business Breakthrough Session and get a personalised action plan built around your health check results.</p>
+        <div class="cta-btns">
+          <button class="btn-cta-p" onclick="window.open('https://calendly.com/amer-fasihi-2te3','_blank')">Book a free session →</button>
+          <button class="btn-cta-g" onclick="shareResults()">Share my results</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="restart">
+      <button onclick="restart()">Retake the health check</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+const FOCUS={
+  'Alignment':'Shared vision reduces bottlenecks, improves decisions and aligns your whole team.',
+  'Strategy':'A clear plan turns daily activity into measurable long-term progress.',
+  'Planning':'90-day plans convert big goals into focused, executable weekly priorities.',
+  'Goals':'Long-term goals give every business decision a clear sense of direction.',
+  'Succession':'An exit strategy protects business value and gives you future options.',
+  'Reviews':'Regular strategy reviews keep your business adapting ahead of the market.',
+  'Cash flow':'13-week forecasting removes financial anxiety and keeps growth fully funded.',
+  'Marketing':'A consistent marketing system generates predictable leads without owner involvement.',
+  'Revenue':'Tracking revenue drivers reveals exactly where to focus for faster growth.',
+  'Profit':'Understanding margins shows where to cut waste and increase net profit.',
+  'Operations':'Documented processes free you from daily operations and enable team autonomy.',
+  'Bottlenecks':'Removing bottlenecks accelerates output, reduces stress and improves team performance.',
+  'Team':'Defined roles and accountability unlock team performance and reduce owner dependency.',
+  'Leadership':'Investing in development builds a capable team that grows with you.',
+  'Culture':'A strong culture attracts better people and reduces costly staff turnover.',
+  'Innovation':'Capturing and acting on ideas keeps your offer ahead of competitors.',
+  'Customer':'Acting on feedback improves retention, referrals and the strength of your offer.',
+  'Wellbeing':'Sustainable energy levels are the foundation of good leadership and clear decisions.'
+};
+
+const PC={Vision:'#3B5BDB',Velocity:'#E67700',Value:'#2D6A4F'};
+const PI={
+  Vision:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>',
+  Velocity:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+  Value:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
+};
+
+const QUESTIONS=[
+  {pillar:'Vision',step:'Alignment',q:'Is everyone in your leadership team clear about your business vision and direction?',opts:['Not really — it\'s mostly in my head','We\'ve discussed it but it\'s not documented','It\'s shared but not consistently communicated','Yes — clear, documented and lived daily']},
+  {pillar:'Vision',step:'Strategy',q:'Do you have a clear and detailed strategic plan for the next 1–3 years?',opts:['No — we largely react to what comes up','We have some goals but no real plan','We have a plan but rarely review it','Yes — a living strategy we review regularly']},
+  {pillar:'Vision',step:'Planning',q:'Do you have a clear structured plan for the next 90 days with specific objectives?',opts:['No structured plan in place','We set goals but don\'t track them well','We have a 90-day plan but execution is patchy','Yes — clear priorities, owners and weekly reviews']},
+  {pillar:'Vision',step:'Goals',q:'Have you set long-term objectives (3–5 years) to guide your business strategy?',opts:['No long-term thinking yet','Some vague ideas but nothing concrete','Written goals but not actively used','Yes — goals are clear, shared and guide decisions']},
+  {pillar:'Vision',step:'Succession',q:'Do you have a succession plan or exit strategy for your business?',opts:['Never considered it','It\'s on my list but not started','Partially thought through','Yes — documented and reviewed with advisers']},
+  {pillar:'Vision',step:'Reviews',q:'Do you review and update your business strategy at least quarterly?',opts:['Rarely or never','Once a year if we\'re lucky','We try but it\'s inconsistent','Yes — quarterly reviews are in the calendar']},
+  {pillar:'Velocity',step:'Cash flow',q:'Do you have a 13-week cash flow forecast and a plan to manage it?',opts:['No visibility on cash flow','I check the bank balance and hope for the best','Informal tracking, no real forecast','Yes — we forecast 13 weeks ahead and act on it']},
+  {pillar:'Velocity',step:'Marketing',q:'Do you have a clear marketing plan and system that consistently generates leads?',opts:['No marketing plan','Ad hoc activity with no system','Some activity but inconsistent leads','Yes — a system delivering predictable leads monthly']},
+  {pillar:'Velocity',step:'Revenue',q:'Do you track your key revenue metrics (conversion rate, deal size, lifetime value) regularly?',opts:['I don\'t track these','I know revenue but not the drivers','I track some metrics occasionally','Yes — I review KPIs weekly and act on them']},
+  {pillar:'Velocity',step:'Profit',q:'Have you analysed your profit margins and identified ways to improve them?',opts:['Not really looked at margins','I know top-line revenue but not net profit','Aware of margins but not actively managing them','Yes — margins tracked with an improvement plan']},
+  {pillar:'Velocity',step:'Operations',q:'Do you have documented processes so the business can run without you day-to-day?',opts:['Everything depends on me','A few things documented but most in people\'s heads','Core processes documented but inconsistently followed','Yes — documented, trained and team runs it well']},
+  {pillar:'Velocity',step:'Bottlenecks',q:'Do you have a clear method for identifying and removing bottlenecks in your business?',opts:['Problems pile up and get firefought','We fix issues but don\'t prevent them','We identify issues but resolution is slow','Yes — systematic process for removing bottlenecks']},
+  {pillar:'Value',step:'Team',q:'Do you have the right people in clearly defined roles with accountability?',opts:['Roles are blurry and accountability is low','Some roles defined but gaps exist','Most roles clear but some accountability issues','Yes — clear org chart, job scorecards, high performance']},
+  {pillar:'Value',step:'Leadership',q:'Do you invest in consistent training and development for your team?',opts:['No structured development','Ad hoc training when needed','Some training but no development plans','Yes — every team member has a development plan']},
+  {pillar:'Value',step:'Culture',q:'Have you built a culture that attracts and retains the right people?',opts:['Culture is not something I\'ve focused on','Some culture but not intentionally built','Good culture but not consistently reinforced','Yes — intentional, lived and a competitive advantage']},
+  {pillar:'Value',step:'Innovation',q:'Do you have a system to capture, prioritise and implement new ideas?',opts:['Ideas get lost or never acted on','Some ideas implemented but no system','Occasional innovation but not systematic','Yes — structured process from idea to implementation']},
+  {pillar:'Value',step:'Customer',q:'Do you consistently collect and act on customer feedback to improve your offer?',opts:['Rarely gather feedback','Collect feedback occasionally but don\'t act on it','Gather feedback but response is slow','Yes — systematic collection, review and improvement']},
+  {pillar:'Value',step:'Wellbeing',q:'Do you have the work-life balance and energy levels you want as a business owner?',opts:['Constantly overwhelmed, running on empty','Often stressed, sacrificing personal life','Mostly ok but peaks of overload','Yes — sustainable rhythm with time for life outside work']}
+];
+
+const PILLAR_ORDER=['Vision','Velocity','Value'];
+let current=0,answers=Array(QUESTIONS.length).fill(null);
+
+function buildDots(){
+  const row=document.getElementById('dots-row');
+  const labels=document.getElementById('dots-labels');
+  row.innerHTML='';labels.innerHTML='';
+  PILLAR_ORDER.forEach((p,pi)=>{
+    if(pi>0){
+      const sep=document.createElement('div');
+      sep.className='dot-sep';
+      sep.innerHTML='<span></span>';
+      row.appendChild(sep);
+    }
+    const grp=document.createElement('div');
+    grp.className='dot-group';
+    grp.id='dotgroup-'+p;
+    const qs=QUESTIONS.filter(q=>q.pillar===p);
+    qs.forEach((_,i)=>{
+      const d=document.createElement('div');
+      d.className='dot';
+      d.id='dot-'+p+'-'+i;
+      d.style.background='rgba(255,255,255,0.15)';
+      grp.appendChild(d);
+    });
+    row.appendChild(grp);
+    // label spacer
+    if(pi>0){
+      const lsep=document.createElement('div');
+      lsep.className='dot-sep';
+      lsep.innerHTML='<span></span>';
+      labels.appendChild(lsep);
+    }
+    const lgrp=document.createElement('div');
+    lgrp.className='dot-group';
+    lgrp.style.justifyContent='center';
+    const lbl=document.createElement('div');
+    lbl.className='dot-group-label';
+    lbl.textContent=p;
+    lbl.style.width=(qs.length*12)+'px';
+    lbl.style.textAlign='center';
+    lgrp.appendChild(lbl);
+    labels.appendChild(lgrp);
+  });
+}
+
+function updateDots(){
+  PILLAR_ORDER.forEach(p=>{
+    const qs=QUESTIONS.map((q,i)=>({...q,i})).filter(q=>q.pillar===p);
+    qs.forEach((q,di)=>{
+      const d=document.getElementById('dot-'+p+'-'+di);
+      if(!d)return;
+      if(answers[q.i]!==null){
+        d.style.background=PC[p];
+      } else if(q.i===current){
+        d.style.background='rgba(255,255,255,0.55)';
+      } else {
+        d.style.background='rgba(255,255,255,0.15)';
+      }
+    });
+  });
+}
+
+function startQuiz(){show('quiz');buildDots();renderQ();}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderQ(){
+  const q=QUESTIONS[current];
+  const pct=Math.round((current/QUESTIONS.length)*100);
+  document.getElementById('prog').style.width=pct+'%';
+  document.getElementById('prog').style.background=PC[q.pillar];
+  document.getElementById('q-label').textContent=q.pillar+' · '+q.step;
+  document.getElementById('q-counter').textContent=(current+1)+' / '+QUESTIONS.length;
+  // Option A: pillar band
+  document.getElementById('pillar-band').style.background=PC[q.pillar];
+  document.getElementById('q-text').textContent=q.q;
+  const wrap=document.getElementById('options');
+  wrap.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const d=document.createElement('div');
+    d.className='opt'+(answers[current]===i?' selected':'');
+    // Option A: selected border matches pillar colour
+    if(answers[current]===i) d.style.borderColor=PC[q.pillar];
+    d.innerHTML='<div class="opt-radio"></div><span>'+o+'</span>';
+    d.onclick=()=>{
+      answers[current]=i;
+      wrap.querySelectorAll('.opt').forEach(x=>{x.classList.remove('selected');x.style.borderColor='';});
+      d.classList.add('selected');
+      d.style.borderColor=PC[q.pillar];
+      // colour the radio
+      d.querySelector('.opt-radio').style.borderColor=PC[q.pillar];
+      d.querySelector('.opt-radio').style.background=PC[q.pillar];
+      document.getElementById('btn-next').disabled=false;
+      updateDots();
+    };
+    wrap.appendChild(d);
+  });
+  // style selected radio on render
+  if(answers[current]!==null){
+    const sel=wrap.querySelectorAll('.opt')[answers[current]];
+    if(sel){
+      const radio=sel.querySelector('.opt-radio');
+      radio.style.borderColor=PC[q.pillar];
+      radio.style.background=PC[q.pillar];
+    }
+  }
+  document.getElementById('btn-next').disabled=answers[current]===null;
+  document.getElementById('btn-back').style.visibility=current===0?'hidden':'visible';
+  document.getElementById('btn-next').textContent=current===QUESTIONS.length-1?'See my results →':'Next →';
+  updateDots();
+}
+
+function goNext(){
+  if(answers[current]===null)return;
+  if(current<QUESTIONS.length-1){current++;renderQ();}
+  else showResults();
+}
+
+function goBack(){if(current>0){current--;renderQ();}}
+
+// --- RADAR CHART (Option C) ---
+function drawRadar(vPct,velPct,valPct){
+  const svg=document.getElementById('radar');
+  const cx=140,cy=105,r=75;
+  // Triangle tips: Vision=top, Velocity=bottom-right, Value=bottom-left
+  const tips=[
+    {x:cx, y:cy-r, label:'Vision', pct:vPct, color:'#3B5BDB', anchor:'middle', lx:cx, ly:cy-r-18},
+    {x:cx+r*Math.sin(Math.PI*2/3*(-1)+Math.PI/2*0), y:cy+r*Math.cos(0), label:'Velocity', pct:velPct, color:'#E67700', anchor:'start', lx:cx+r*0.87+12, ly:cy+r*0.5+4},
+    {x:cx-r*0.87, y:cy+r*0.5, label:'Value', pct:valPct, color:'#2D6A4F', anchor:'end', lx:cx-r*0.87-12, ly:cy+r*0.5+4}
+  ];
+  // Recalculate tips properly using equilateral triangle
+  const angle0=-Math.PI/2; // top
+  const pts3=(frac)=>[0,1,2].map(i=>{
+    const a=angle0+i*(2*Math.PI/3);
+    return {x:cx+frac*r*Math.cos(a), y:cy+frac*r*Math.sin(a)};
+  });
+
+  const grid=[0.25,0.5,0.75,1.0];
+  let html='';
+  // grid polygons
+  grid.forEach(f=>{
+    const gp=pts3(f);
+    html+=`<polygon points="${gp.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="#E8E5DF" stroke-width="${f===1?0.8:0.5}"/>`;
+  });
+  // axes
+  const outer=pts3(1);
+  outer.forEach(p=>{html+=`<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="#E8E5DF" stroke-width="0.5"/>`;});
+  // score polygon
+  const scorePts=[vPct/100, velPct/100, valPct/100].map((f,i)=>{
+    const a=angle0+i*(2*Math.PI/3);
+    return {x:cx+f*r*Math.cos(a), y:cy+f*r*Math.sin(a)};
+  });
+  // blend colour for fill
+  html+=`<polygon points="${scorePts.map(p=>p.x+','+p.y).join(' ')}" fill="#3B5BDB" fill-opacity="0.08" stroke="#3B5BDB" stroke-width="1.5"/>`;
+  // score dots
+  const dotColors=['#3B5BDB','#E67700','#2D6A4F'];
+  scorePts.forEach((p,i)=>{
+    html+=`<circle cx="${p.x}" cy="${p.y}" r="5" fill="${dotColors[i]}" stroke="white" stroke-width="1.5"/>`;
+  });
+  // labels
+  const labelData=[
+    {a:angle0+0*(2*Math.PI/3), label:'Vision', pct:vPct, color:'#3B5BDB'},
+    {a:angle0+1*(2*Math.PI/3), label:'Velocity', pct:velPct, color:'#E67700'},
+    {a:angle0+2*(2*Math.PI/3), label:'Value', pct:valPct, color:'#2D6A4F'}
+  ];
+  labelData.forEach(d=>{
+    const lx=cx+(r+26)*Math.cos(d.a);
+    const ly=cy+(r+26)*Math.sin(d.a);
+    const anchor=Math.abs(d.a+Math.PI/2)<0.3?'middle':lx>cx?'start':'end';
+    html+=`<text x="${lx}" y="${ly-5}" text-anchor="${anchor}" font-family="DM Sans,sans-serif" font-size="11" font-weight="500" fill="${d.color}">${d.label}</text>`;
+    html+=`<text x="${lx}" y="${ly+8}" text-anchor="${anchor}" font-family="DM Sans,sans-serif" font-size="10" fill="#9E9B94">${d.pct}%</text>`;
+  });
+  // centre dot
+  html+=`<circle cx="${cx}" cy="${cy}" r="2.5" fill="#C8C4BC"/>`;
+  svg.innerHTML=html;
+}
+
+function showResults(){
+  const pm={Vision:{s:0,m:0},Velocity:{s:0,m:0},Value:{s:0,m:0}};
+  let total=0;
+  QUESTIONS.forEach((q,i)=>{const s=answers[i]??0;pm[q.pillar].s+=s;pm[q.pillar].m+=3;total+=s;});
+  const pct=total/(QUESTIONS.length*3);
+
+  let level,color,bgColor,title,desc,levelNum;
+  if(pct<0.35){level='Level 1';color='#B91C1C';bgColor='rgba(185,28,28,0.2)';title='Overwhelm';levelNum=1;desc='Some areas in your business\'s foundations need to be addressed. Many owners start here — the key is knowing what needs to be done and having a clear route forward.';}
+  else if(pct<0.5){level='Level 2';color='#E67700';bgColor='rgba(230,119,0,0.2)';title='Overworked';levelNum=2;desc='You\'re building momentum. With the right focus, freeing yourself from the day-to-day is closer than you might think.';}
+  else if(pct<0.65){level='Level 3';color='#2F9E44';bgColor='rgba(47,158,68,0.2)';title='Organised';levelNum=3;desc='You\'ve made real progress. A few targeted moves could accelerate your transition to working on the business, not in it.';}
+  else if(pct<0.8){level='Level 4';color='#0F9488';bgColor='rgba(15,148,136,0.2)';title='Overseer';levelNum=4;desc='You\'re operating at a strong level. The next stage is about fine-tuning the engine and enjoying more of the rewards.';}
+  else{level='Level 5';color='#7C3AED';bgColor='rgba(124,58,237,0.2)';title='Owner';levelNum=5;desc='Outstanding. Your business is working well for you — the opportunity now is to protect, grow and future-proof what you\'ve built.';}
+
+  document.getElementById('score-num').textContent=total;
+  window._levelNum=levelNum;
+  const ring=document.getElementById('ring');
+  ring.style.stroke=color;
+  setTimeout(()=>{ring.style.strokeDashoffset=314-(pct*314);},120);
+
+  const pill=document.getElementById('level-pill');
+  pill.textContent=level+' — '+title;
+  pill.style.cssText=`background:${bgColor};color:${color};border:1px solid ${color}44;display:inline-block;padding:0.35rem 1rem;border-radius:20px;font-size:13px;font-weight:500;margin-bottom:0.75rem`;
+  document.getElementById('level-title').textContent='Your business is at '+title;
+  document.getElementById('level-desc').textContent=desc;
+
+  // Radar
+  const vp=Math.round((pm.Vision.s/pm.Vision.m)*100);
+  const velp=Math.round((pm.Velocity.s/pm.Velocity.m)*100);
+  const valp=Math.round((pm.Value.s/pm.Value.m)*100);
+  setTimeout(()=>drawRadar(vp,velp,valp),150);
+
+  // Pillar bars
+  const pg=document.getElementById('pillars-grid');
+  pg.innerHTML='';
+  Object.entries(pm).forEach(([name,d])=>{
+    const p=Math.round((d.s/d.m)*100);
+    const bc=p>=65?'#2D6A4F':p>=40?'#B45309':'#B91C1C';
+    const pc=PC[name];
+    pg.innerHTML+=`<div class="pillar-row" style="border-left:3px solid ${pc}">
+      <div class="pillar-top">
+        <span style="display:flex;align-items:center;gap:7px">
+          <span style="color:${pc};display:flex;align-items:center">${PI[name]}</span>
+          <span>${name}</span>
+        </span>
+        <span class="pillar-pct">${p}%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" data-w="${p}" style="width:0%;background:${bc}"></div></div>
+    </div>`;
+  });
+  setTimeout(()=>{document.querySelectorAll('.bar-fill').forEach(b=>{b.style.width=b.dataset.w+'%';});},200);
+
+  // Focus areas — sorted by score ascending, pick top 3, with deduplication across pillars where possible
+  const scored=QUESTIONS.map((q,i)=>({step:q.step,pillar:q.pillar,score:answers[i]??0}));
+  const sorted=[...scored].sort((a,b)=>a.score-b.score);
+
+  // Pick top 3 for focus panel and report — prefer variety across pillars
+  let focusItems=[];
+  const usedPillars={};
+  // First pass: one from each pillar if low enough
+  for(const p of ['Vision','Velocity','Value']){
+    const candidate=sorted.find(x=>x.pillar===p&&!focusItems.includes(x));
+    if(candidate&&candidate.score<=2) focusItems.push(candidate);
+  }
+  // Fill remaining slots from lowest scores regardless of pillar
+  for(const item of sorted){
+    if(focusItems.length>=3)break;
+    if(!focusItems.includes(item))focusItems.push(item);
+  }
+  focusItems=focusItems.slice(0,3);
+
+  const fl=document.getElementById('focus-list');
+  fl.innerHTML='';
+  if(focusItems.every(x=>x.score>=3)){
+    fl.innerHTML='<div class="focus-item"><span style="font-size:18px;flex-shrink:0;line-height:1">✓</span><div class="focus-text"><span>Your scores across all areas are strong. Your focus now is on sustaining performance and exploring the next level of growth.</span></div></div>';
+  } else {
+    focusItems.forEach(w=>{
+      const pc=PC[w.pillar];
+      fl.innerHTML+=`<div class="focus-item">
+        <div class="focus-dot" style="background:${pc}15;color:${pc};border:1px solid ${pc}30">${PI[w.pillar]}</div>
+        <div class="focus-text">
+          <strong>${w.pillar} · ${w.step}</strong>
+          <span>${FOCUS[w.step]||''}</span>
+        </div>
+      </div>`;
+    });
+  }
+
+  // Generate report
+  generateReport(focusItems, levelNum);
+
+  show('results');
+}
+
+const REPORT_INTROS={
+  1:[
+    'Every successful business starts with clarity about where to focus. Your health check highlights three areas where the right attention now will create the strongest foundation for growth.',
+    'Many of the UK\'s most successful business owners started from exactly this position. Your health check points to three areas where focused effort will make the greatest early difference.',
+    'Starting a growth journey means knowing where to begin. Your health check has identified three areas where targeted action will unlock the most progress in the shortest time.'
+  ],
+  2:[
+    'Your business is moving forward — and the next step is making sure that growth doesn\'t depend entirely on you. Your health check highlights three areas that will give you more leverage and more time.',
+    'You\'ve built something real. Your health check points to three areas where focused attention will help the business grow more independently, with less reliance on your personal effort.',
+    'The shift from working in the business to working on it is closer than you might think. Your health check identifies the three areas most likely to accelerate that transition.'
+  ],
+  3:[
+    'You\'ve made genuine progress and built a solid platform. Your health check identifies three areas where the right focus now will move you toward a business that runs and grows with real independence.',
+    'A well-organised business is a strong foundation. Your health check points to three areas where targeted development will help you step further into a strategic role and enjoy more of the results.',
+    'You\'re operating with good structure. Your health check highlights three areas where further investment will compound your existing strengths and accelerate the next stage of growth.'
+  ],
+  4:[
+    'You\'re leading a well-run business. Your health check identifies three refinements that could move you toward the kind of ownership where the business generates value with increasing independence.',
+    'At this level, the gains come from precision. Your health check highlights three areas where focused improvement will strengthen your position and move you closer to true business ownership.',
+    'Strong businesses become exceptional ones through targeted refinement. Your health check points to three areas where the return on your attention will be disproportionately high.'
+  ],
+  5:[
+    'Your business is performing at a high level. Your health check highlights three areas where continued investment will protect what you\'ve built and open up new opportunities for growth.',
+    'You\'ve built something to be proud of. Your health check identifies three areas where further development will future-proof your business and sustain its performance over the long term.',
+    'Exceptional businesses stay exceptional through intentional focus. Your health check points to three areas where continued attention will strengthen your position and expand your options.'
+  ]
+};
+
+const REPORT_OUTCOMES={
+  'Alignment':{
+    low:'Bringing your team into a shared vision — even informally to begin with — would reduce the number of decisions flowing through you, freeing up your time for the things only you can do.',
+    mid:'Strengthening alignment across your leadership team would sharpen decision-making, reduce friction, and help everyone pull in the same direction with less need for your direct involvement.',
+    high:'Deepening alignment at this level tends to unlock faster execution — when everyone genuinely owns the direction, the business moves with more pace and less coordination overhead.'
+  },
+  'Strategy':{
+    low:'A clear 1–3 year strategic plan, even on a single page, gives every business decision a frame of reference — helping you say yes to the right things and no to the things that distract from growth.',
+    mid:'Strengthening your strategic plan from a working document to a living reference would help you prioritise more confidently, allocate resources more effectively, and spot opportunities earlier.',
+    high:'At your level, a sharply defined strategy becomes a competitive advantage — it sharpens how you communicate your direction to clients, partners and future team members.'
+  },
+  'Planning':{
+    low:'A simple 90-day plan — even just three to five clear priorities — would convert your energy into measurable progress rather than reactive activity. Structure at this stage creates momentum that compounds.',
+    mid:'Tightening your 90-day planning cycle and building in regular reviews would significantly improve how consistently your team executes against your goals.',
+    high:'Refining how you run 90-day cycles — particularly around ownership and accountability — tends to close the gap between strategy and execution at a leadership level.'
+  },
+  'Goals':{
+    low:'Setting even a loose 3-year aspiration gives your business a direction to orientate around. It shapes hiring decisions, investment choices, and how you talk about the business to others.',
+    mid:'Translating your longer-term ambitions into clearer milestones would help you and your team make better decisions about where to invest time and resource right now.',
+    high:'At this stage, sharply defined long-term goals become a tool for attracting the right people and partnerships — communicating where you\'re heading with confidence creates real commercial advantage.'
+  },
+  'Succession':{
+    low:'Giving some early thought to how the business could one day operate without you is less about planning to leave and more about building something genuinely valuable. It shapes how you structure everything else.',
+    mid:'Developing a clearer picture of your exit options or succession pathway would help you make smarter decisions today about the structure, systems and people you invest in.',
+    high:'Formalising your succession thinking — even in outline — protects the value you\'ve built and gives you more options: to step back, scale up, bring in partners, or exit on your own terms.'
+  },
+  'Reviews':{
+    low:'Building even a lightweight quarterly rhythm — a two-hour review of what\'s working and what to change — would significantly improve how quickly your business adapts and how clearly you spot what to prioritise.',
+    mid:'Making strategy reviews a consistent quarterly habit, rather than an ad hoc one, would improve how well your plans hold up against reality and keep your team focused on what matters most.',
+    high:'At your level, structured reviews become the mechanism for staying ahead rather than catching up — they turn good performance into sustained competitive advantage.'
+  },
+  'Cash flow':{
+    low:'Getting a clearer view of your cash position — even a basic 4-week forward look — removes a significant source of business anxiety and gives you the confidence to make decisions and invest in growth.',
+    mid:'Building a more structured cash flow forecast would give you earlier visibility of pressure points, allowing you to act before they become problems rather than reacting to them.',
+    high:'At your level, a robust 13-week cash flow model becomes a strategic tool — it tells you when you can accelerate investment, when to hold back, and how to fund growth without unnecessary risk.'
+  },
+  'Marketing':{
+    low:'Building even a simple, repeatable approach to generating enquiries — one consistent activity done well — would reduce the feast-and-famine cycle that makes planning and hiring so difficult.',
+    mid:'Systematising your marketing activity would reduce the reliance on referrals and reactive outreach, creating a more predictable pipeline that supports confident growth decisions.',
+    high:'At this stage, a fully systematised marketing engine — one that generates leads consistently without your direct involvement — would allow you to scale without adding proportional effort.'
+  },
+  'Revenue':{
+    low:'Understanding a few key revenue numbers — your average deal size, how many enquiries convert, and roughly how long clients stay — gives you far more control over how you grow.',
+    mid:'Tracking your key revenue metrics regularly would help you identify where the most growth is coming from and where small improvements would have the biggest commercial impact.',
+    high:'At your level, sharp revenue analytics become a tool for making precise decisions — knowing exactly which channels, offers and clients drive the most value allows you to accelerate growth intelligently.'
+  },
+  'Profit':{
+    low:'Getting a clearer picture of your actual profit margins — not just turnover — is often the most immediately valuable exercise a growing business can undertake. It reveals where to focus and where to stop spending.',
+    mid:'A more active focus on margin management would help you grow more profitably rather than just growing revenue — which tends to significantly reduce owner pressure at the same time.',
+    high:'At this stage, systematic profit management — reviewing margins by service, client and channel — tends to surface significant value that\'s already there but not yet fully captured.'
+  },
+  'Operations':{
+    low:'Documenting even your three or four most important processes would immediately reduce how much the business depends on you being present — the first step toward building something that runs itself.',
+    mid:'Strengthening your operational documentation and ensuring your team is trained against it would improve consistency, reduce errors, and free you from being the answer to every operational question.',
+    high:'At your level, a fully systematised operation — where processes are documented, followed and continuously improved — is what allows you to scale without your personal involvement growing at the same rate.'
+  },
+  'Bottlenecks':{
+    low:'Identifying the two or three things that most frequently slow your business down — and addressing them one at a time — tends to release significant capacity and reduce the feeling of constant firefighting.',
+    mid:'Building a simple, regular process for identifying and resolving bottlenecks would improve throughput, reduce team frustration, and free up time that\'s currently absorbed by recurring patterns.',
+    high:'At your level, a systematic approach to bottleneck removal is what keeps a high-performing business performing — and prevents the kind of compounding inefficiencies that slow growth at scale.'
+  },
+  'Team':{
+    low:'Clarifying roles — even informally — and establishing basic accountability would reduce the volume of decisions that need your direct input and give your team a clearer sense of what success looks like for them.',
+    mid:'Strengthening your team structure — clearer roles, clearer expectations, clearer accountability — would significantly reduce owner dependency and allow your business to move faster with less friction.',
+    high:'At this level, a high-accountability team with clearly defined roles and performance expectations is what allows a business to scale without the owner becoming the limiting factor.'
+  },
+  'Leadership':{
+    low:'Investing in even one or two people\'s development — giving them a clear path and some structured support — tends to have an outsized effect on team energy, retention, and the quality of work they deliver.',
+    mid:'Building structured development plans for your key people would strengthen your team\'s capability over time, reduce turnover, and build the internal talent pipeline your business will need as it grows.',
+    high:'At your level, a deliberate leadership development programme is what sustains high performance — it builds the next layer of leadership that allows you to step further back from day-to-day decisions.'
+  },
+  'Culture':{
+    low:'Giving some thought to the kind of environment you want to create — even a few words about how you want the business to feel — gives you something to hire against, lead by, and build on.',
+    mid:'Making your culture more intentional — defining it, communicating it, and reinforcing it consistently — would improve how you attract and retain the right people as you grow.',
+    high:'At this level, a strong, clearly articulated culture becomes a genuine competitive advantage — it differentiates you in the market, makes hiring easier, and keeps your best people engaged.'
+  },
+  'Innovation':{
+    low:'Creating a simple way for good ideas to be captured and considered — even a shared list reviewed monthly — means valuable thinking doesn\'t get lost and your business keeps improving.',
+    mid:'Building a more structured approach to innovation — capturing ideas, prioritising them and acting on the best ones — would help your business stay relevant and keep improving its offer.',
+    high:'At your level, a systematic innovation process is what keeps a successful business ahead of the curve — turning the ideas your team generates into a source of ongoing competitive advantage.'
+  },
+  'Customer':{
+    low:'Asking your existing clients what they value most, even informally, would give you immediately useful intelligence for improving your offer, your communication, and your retention.',
+    mid:'Building a more consistent approach to gathering and acting on client feedback would improve retention, generate more referrals, and help you evolve your offer in line with what the market actually wants.',
+    high:'At this level, a systematic client feedback process — with clear ownership and regular review — sustains a strong reputation and supports confident decisions about where to develop your offer next.'
+  },
+  'Wellbeing':{
+    low:'Building some personal sustainability into how you run the business — protecting your energy, your focus time, and your life outside work — is the foundation of sound, long-term business leadership.',
+    mid:'Addressing the rhythms that are creating sustained pressure would improve your decision-making, your leadership, and your ability to think strategically — as well as making the business more enjoyable to run.',
+    high:'At your level, protecting your energy and maintaining a sustainable work rhythm is what allows you to lead at your best over the long term — and model the kind of culture that retains great people.'
+  }
+};
+
+function getOutcomeTier(score){
+  if(score<=1)return 'low';
+  if(score===2)return 'mid';
+  return 'high';
+}
+
+function generateReport(focusItems,levelNum){
+  const intros=REPORT_INTROS[levelNum]||REPORT_INTROS[3];
+  const intro=intros[Math.floor(Math.random()*intros.length)];
+  document.getElementById('report-intro').textContent=intro;
+  const ri=document.getElementById('report-items');
+  ri.innerHTML='';
+  focusItems.forEach((item,idx)=>{
+    const tier=getOutcomeTier(item.score);
+    const outcomes=REPORT_OUTCOMES[item.step];
+    const outcome=outcomes?outcomes[tier]||outcomes.mid||'':'';
+    const pc=PC[item.pillar];
+    ri.innerHTML+=`<div class="report-item">
+      <div class="report-num" style="background:${pc}15;color:${pc}">${idx+1}</div>
+      <div class="report-content">
+        <div class="report-area">${item.pillar} · ${item.step}</div>
+        <div class="report-outcome">${outcome}</div>
+      </div>
+    </div>`;
+  });
+}
+
+function shareResults(){
+  if(navigator.share){
+    navigator.share({title:'My Business Health Check Results',text:'I just completed the Business Health Check — discover yours.',url:window.location.href});
+  } else {
+    navigator.clipboard.writeText(window.location.href).then(()=>alert('Link copied to clipboard!'));
+  }
+}
+
+function restart(){
+  current=0;
+  answers=Array(QUESTIONS.length).fill(null);
+  // Reset email capture
+  const emailInput=document.getElementById('email-input');
+  const submitBtn=document.getElementById('email-submit');
+  const successEl=document.getElementById('email-success');
+  const errorEl=document.getElementById('email-error');
+  emailInput.value='';
+  emailInput.style.display='';
+  submitBtn.style.display='';
+  submitBtn.disabled=false;
+  submitBtn.textContent='Send my report';
+  document.querySelector('.email-privacy').style.display='';
+  successEl.style.display='none';
+  errorEl.style.display='none';
+  show('cover');
+}
+
+async function submitEmail(){
+  const emailInput=document.getElementById('email-input');
+  const errorEl=document.getElementById('email-error');
+  const successEl=document.getElementById('email-success');
+  const submitBtn=document.getElementById('email-submit');
+  const email=emailInput.value.trim();
+
+  // Validate
+  const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRegex.test(email)){
+    errorEl.style.display='block';
+    return;
+  }
+  errorEl.style.display='none';
+
+  // Disable button while submitting
+  submitBtn.disabled=true;
+  submitBtn.textContent='Sending...';
+
+  try{
+    const response=await fetch('/.netlify/functions/subscribe',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email:email,
+        levelNum:window._levelNum||1
+      })
+    });
+
+    if(response.ok){
+      // Hide form, show success
+      emailInput.style.display='none';
+      submitBtn.style.display='none';
+      document.querySelector('.email-privacy').style.display='none';
+      successEl.style.display='block';
+    } else {
+      submitBtn.disabled=false;
+      submitBtn.textContent='Send my report';
+      errorEl.textContent='Something went wrong. Please try again.';
+      errorEl.style.display='block';
+    }
+  } catch(err){
+    submitBtn.disabled=false;
+    submitBtn.textContent='Send my report';
+    errorEl.textContent='Something went wrong. Please try again.';
+    errorEl.style.display='block';
+  }
+}
+</script>
+</body>
+</html>
